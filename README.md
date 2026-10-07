@@ -12,6 +12,8 @@ A usage monitor pane for Claude Code: per-session tokens (input, output, cache r
 
 ### Install
 
+New to this? Follow the step-by-step guide: [plugin_install.md](plugin_install.md)
+
 In a Claude Code terminal session:
 
 ```

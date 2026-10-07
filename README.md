@@ -4,10 +4,12 @@ Claude Code mods.
 
 ## agent-usage
 
-A usage monitor pane for Claude Code: per-session tokens (input, output, cache read/write), cache hit %, split by agent type (main, Explore, general-purpose…), model mix, plan limits (5-hour / weekly) with reset times, context fill, burn rate, cost estimate and a simple run-out prediction.
+A usage monitor pane for Claude Code: per-session tokens (input, output, cache read/write), cache hit %, usage per model (Opus, Sonnet, Haiku…) with the overall model mix, plan limits (5-hour / weekly) with reset times, context fill, burn rate, cost estimate and a simple run-out prediction. Subagents are tracked too.
+
+<img src="docs/usage-monitor.png" alt="The usage monitor pane" width="420">
 
 - `/usage-monitor` opens the pane (it opens by itself on wide terminals and in the desktop app)
-- `/usage-by-agent` prints a per-agent table
+- `/usage-by-agent` prints a per-agent table (main, Explore, general-purpose…)
 - the status line shows live totals
 
 ### Install

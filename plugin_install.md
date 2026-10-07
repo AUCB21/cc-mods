@@ -7,9 +7,11 @@ A step-by-step guide. No coding needed: you copy, paste and press Enter.
 A small panel inside Claude Code that shows:
 
 - how much of your plan's limits you've used, and when they reset
-- how many tokens each agent used (the main chat, Explore, and so on)
+- how many tokens each model used (Opus, Sonnet, Haiku), including helper agents
 - how often the cache saved you tokens (cache hit %)
 - a guess at whether you'll run out before the next reset
+
+<img src="docs/usage-monitor.png" alt="The usage monitor pane" width="420">
 
 ## What you need
 

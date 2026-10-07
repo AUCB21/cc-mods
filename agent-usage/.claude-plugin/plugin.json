@@ -14,5 +14,6 @@
     "cache",
     "rate-limits",
     "monitor"
-  ]
+  ],
+  "license": "MIT"
 }

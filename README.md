@@ -33,3 +33,7 @@ Or load it from a clone in every session by adding to `~/.claude/settings.json`:
 ```
 claude plugin test agent-usage
 ```
+
+## License
+
+[MIT](LICENSE): free to use, copy, modify and share.

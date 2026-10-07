@@ -1,9 +1,18 @@
 {
   "name": "agent-usage",
-  "version": "0.4.0",
-  "description": "Per-session token usage (input, output, cache read/write, hit %) split by agent type",
+  "version": "0.4.1",
+  "description": "Usage monitor pane: session tokens, cache hit %, usage per model, plan limits with reset times and run-out prediction (screenshot at homepage)",
   "types": "./types/index.d.ts",
   "author": {
     "name": "AUCB21"
-  }
+  },
+  "homepage": "https://github.com/AUCB21/cc-mods#agent-usage",
+  "repository": "https://github.com/AUCB21/cc-mods",
+  "keywords": [
+    "usage",
+    "tokens",
+    "cache",
+    "rate-limits",
+    "monitor"
+  ]
 }

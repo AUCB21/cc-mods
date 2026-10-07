@@ -1,8 +1,15 @@
 {
   "name": "cc-mods",
   "description": "Claude Code mods by AUCB21",
-  "owner": { "name": "AUCB21" },
+  "owner": {
+    "name": "AUCB21"
+  },
   "plugins": [
-    { "name": "agent-usage", "source": "./agent-usage", "description": "Session usage monitor: tokens, cache hit, plan limits, split by agent type" }
+    {
+      "name": "agent-usage",
+      "source": "./agent-usage",
+      "description": "Session usage monitor: tokens, cache hit, plan limits, split by agent type",
+      "homepage": "https://github.com/AUCB21/cc-mods#agent-usage"
+    }
   ]
 }

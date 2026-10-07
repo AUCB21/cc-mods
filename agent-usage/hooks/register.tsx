@@ -145,6 +145,14 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Text color={tint} bold>✦ ✧ ✦ ✧ CLAUDE CODE USAGE MONITOR ✦ ✧ ✦ ✧</Text>
         <Text color={tint}>{'═'.repeat(cols - 1)}</Text>
+        <Text>
+          <Text bold>Σ This session  </Text>
+          <Text color={tint} bold>{k(sum(t))} tokens</Text>
+        </Text>
+        <Text dimColor>
+          {'  '}in {k(t.input)} · out {k(t.output)} · cache read {k(t.cacheRead)} · cache write {k(t.cacheWrite)}
+        </Text>
+        {rule}
         {s.rateLimits.length > 0 && <Text bold>📊 Plan limits</Text>}
         {s.rateLimits.map(r => {
           const reset = r.resetsAt ? Date.parse(r.resetsAt) : undefined

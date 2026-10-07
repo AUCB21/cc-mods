@@ -1,6 +1,6 @@
 {
   "name": "agent-usage",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Per-session token usage (input, output, cache read/write, hit %) split by agent type",
   "types": "./types/index.d.ts",
   "author": {

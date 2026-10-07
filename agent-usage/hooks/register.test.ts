@@ -69,6 +69,7 @@ test('monitor pane draws on terminal and desktop', async ($, on) => {
     expect(await pane.find({ text: 'runs out' })).toBeDefined()
     expect(await pane.find({ text: '$1.50' })).toBeDefined()
     expect(await pane.find({ text: 'session a1b2c3d4' })).toBeDefined()
+    expect(await pane.find({ text: 'This session' })).toBeDefined()
   }
 })
 

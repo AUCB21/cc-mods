@@ -76,6 +76,15 @@ export const runsOutAt = (pct: number, resetsAt: number, windowMs: number, now: 
 
 const light = (pct: number) => (pct >= 90 ? 'error' : pct >= 60 ? 'warning' : 'success')
 
+// plan limits: green, then yellow at 65%, orange at 80%, red at 95%
+export const planColor = (pct: number) =>
+  pct >= 95 ? 'error' : pct >= 80 ? '#ff8c00' : pct >= 65 ? 'warning' : 'success'
+
+// ponytail: 6 accents hashed from the session id; two sessions can share one, add more colors if that bites
+const ACCENTS = ['#d97757', '#4fa3e0', '#9b7be0', '#3fbf9f', '#e0b84f', '#e0609b']
+export const accent = (id: string) =>
+  ACCENTS[[...id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0) % ACCENTS.length]
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'usage-by-agent', description: 'Token usage of this session, split by agent type' })
@@ -98,6 +107,8 @@ export const register: Register = on => {
     const rows = await read($, byAgent)
     const models = await read($, byModel)
     const s = await $.session.usage()
+    const sid = await $.session.id()
+    const tint = accent(sid)
     const now = await $.clock.now()
     // label on one line, full-width bar under it: fits a narrow docked pane without wrapping
     // ponytail: desktop's font draws █ and ═ wider than a column; 0.8 measured off a screenshot, tune if bars wrap or fall short
@@ -132,12 +143,12 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
-        <Text color="claude" bold>✦ ✧ ✦ ✧ CLAUDE CODE USAGE MONITOR ✦ ✧ ✦ ✧</Text>
-        <Text dimColor>{'═'.repeat(cols - 1)}</Text>
+        <Text color={tint} bold>✦ ✧ ✦ ✧ CLAUDE CODE USAGE MONITOR ✦ ✧ ✦ ✧</Text>
+        <Text color={tint}>{'═'.repeat(cols - 1)}</Text>
         {s.rateLimits.length > 0 && <Text bold>📊 Plan limits</Text>}
         {s.rateLimits.map(r => {
           const reset = r.resetsAt ? Date.parse(r.resetsAt) : undefined
-          return row('⏱', r.kind.replace('_', ' '), r.percentUsed, light(r.percentUsed),
+          return row('⏱', r.kind.replace('_', ' '), r.percentUsed, planColor(r.percentUsed),
             reset ? `resets ${when(reset, now)} (in ${span(reset - now)})` : '')
         })}
         {s.context.percent !== undefined &&
@@ -198,7 +209,10 @@ export const register: Register = on => {
           )
         })}
         <Text> </Text>
-        <Text dimColor>⏰ {hhmm(now)} · session {span(now - s.startedAt)} · {t.requests} requests</Text>
+        <Text>
+          <Text color={tint} bold>● session {sid.slice(0, 8)}</Text>
+          <Text dimColor>  ⏰ {hhmm(now)} · {span(now - s.startedAt)} · {t.requests} requests</Text>
+        </Text>
       </Box>
     )
   })

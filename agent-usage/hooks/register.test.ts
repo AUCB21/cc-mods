@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { bar, hitRate, k, runsOutAt, span, table } from './register'
+import { accent, bar, hitRate, k, planColor, runsOutAt, span, table } from './register'
 
 test('compact numbers and spans', () => {
   expect(k(950)).toBe('950')
@@ -50,6 +50,7 @@ test('bar fills by percent and clamps', () => {
 test('monitor pane draws on terminal and desktop', async ($, on) => {
   const H = 3600e3
   on('clock.now', () => ({ value: 2 * H }))
+  on('session.id', () => ({ value: 'a1b2c3d4-test' }))
   on('session.usage', () => ({
     value: {
       startedAt: 0,
@@ -67,6 +68,7 @@ test('monitor pane draws on terminal and desktop', async ($, on) => {
     expect(await pane.find({ text: 'USAGE MONITOR' })).toBeDefined()
     expect(await pane.find({ text: 'runs out' })).toBeDefined()
     expect(await pane.find({ text: '$1.50' })).toBeDefined()
+    expect(await pane.find({ text: 'session a1b2c3d4' })).toBeDefined()
   }
 })
 
@@ -77,4 +79,16 @@ test('limit projection: linear pace, none when it lasts', () => {
   // 2h in, 20% used -> would need 10h, resets first
   expect(runsOutAt(20, 5 * H, 5 * H, 2 * H)).toBeUndefined()
   expect(runsOutAt(0, 5 * H, 5 * H, 2 * H)).toBeUndefined()
+})
+
+test('plan limit colors: yellow 65, orange 80, red 95', () => {
+  expect(planColor(64.9)).toBe('success')
+  expect(planColor(65)).toBe('warning')
+  expect(planColor(80)).toBe('#ff8c00')
+  expect(planColor(95)).toBe('error')
+})
+
+test('session accent is stable per id', () => {
+  expect(accent('abc')).toBe(accent('abc'))
+  expect(accent('abc')).toMatch(/^#[0-9a-f]{6}$/)
 })

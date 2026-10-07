@@ -1,0 +1,9 @@
+{
+  "name": "agent-usage",
+  "version": "0.1.0",
+  "description": "Per-session token usage (input, output, cache read/write, hit %) split by agent type",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "AUCB21"
+  }
+}

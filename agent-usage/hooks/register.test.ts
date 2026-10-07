@@ -59,6 +59,17 @@ test('monitor pane draws on terminal and desktop', async ($, on) => {
       cost: { usd: 1.5 },
     },
   }))
+  on('ui.status', () => ({ value: undefined }))
+  on('turn.step', async function* (_$, e) {
+    return {
+      turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn' as const,
+      usage: { model: e.model, input_tokens: 10, output_tokens: 5, cache_read_input_tokens: 85, cache_creation_input_tokens: 0 },
+    }
+  })
+  for (const [index, model] of ['claude-opus-5-5', 'claude-haiku-5-5'].entries()) {
+    const stream = $.turn.step({ turnId: 'p', index, model, messageCount: 1 })
+    while (!(await stream.next()).done);
+  }
   for (const surface of ['terminal', 'desktop'] as const) {
     const pane = await $.ui.mount({
       plugin: 'agent-usage', surface, component: 'Pane', requestId: 'usage-monitor',
@@ -70,6 +81,9 @@ test('monitor pane draws on terminal and desktop', async ($, on) => {
     expect(await pane.find({ text: '$1.50' })).toBeDefined()
     expect(await pane.find({ text: 'session a1b2c3d4' })).toBeDefined()
     expect(await pane.find({ text: 'This session' })).toBeDefined()
+    expect(await pane.find({ text: 'Usage by model' })).toBeDefined()
+    expect((await pane.findAll({ text: 'opus-5-5' })).length).toBeGreaterThanOrEqual(2) // its row + the mix label
+    expect((await pane.findAll({ text: 'haiku-5-5' })).length).toBeGreaterThanOrEqual(2)
   }
 })
 

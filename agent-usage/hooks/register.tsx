@@ -4,7 +4,7 @@ import type { Register } from 'claude-code'
 import type { Usage } from '../types'
 
 const byAgent = atom({ plugin: 'agent-usage', key: 'byAgent' } as const, {})
-const byModel = atom({ plugin: 'agent-usage', key: 'byModel' } as const, {})
+const byModel = atom({ plugin: 'agent-usage', key: 'byModelUsage' } as const, {})
 const PANE = 'usage-monitor'
 const types = new Map<string, string>() // agentId -> type; refilled lazily after a reload
 
@@ -105,7 +105,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
     const rows = await read($, byAgent)
-    const models = await read($, byModel)
+    const models = await read($, byModel) // model -> Usage
     const s = await $.session.usage()
     const sid = await $.session.id()
     const tint = accent(sid)
@@ -134,9 +134,9 @@ export const register: Register = on => {
     )
     const rule = <Text dimColor>{'─'.repeat(cols - 1)}</Text>
 
-    const names = Object.keys(rows).sort((a, b) => sum(rows[b]) - sum(rows[a]))
-    const modelTotal = Object.values(models).reduce((a, b) => a + b, 0)
-    const modelNames = Object.keys(models).sort((a, b) => models[b] - models[a])
+    const modelTotal = sum(total(Object.values(models)))
+    const modelNames = Object.keys(models).sort((a, b) => sum(models[b]) - sum(models[a]))
+    const share = (m: string) => (modelTotal ? (sum(models[m]) / modelTotal) * 100 : 0)
     const palette = ['suggestion', 'warning', 'success', 'claude', 'permission']
     const short = (m: string) => m.replace(/^claude-/, '').replace(/-\d{8}$/, '')
     const limits = s.rateLimits.filter(r => r.resetsAt)
@@ -163,23 +163,23 @@ export const register: Register = on => {
           row('🧠', 'context', s.context.percent, light(s.context.percent), `${k(s.context.tokens ?? 0)} / ${k(s.context.window)}`)}
         {row('♻', 'cache hit', hitRate(t), light(100 - hitRate(t)), `read ${k(t.cacheRead)} · write ${k(t.cacheWrite)}`)}
         {rule}
-        <Text bold>🤖 Agents</Text>
-        {names.length === 0 && <Text dimColor>  No model requests yet.</Text>}
-        {names.map(n =>
-          row(' ', n.slice(0, 16), sum(t) ? (sum(rows[n]) / sum(t)) * 100 : 0, n === 'main' ? 'claude' : 'suggestion',
-            `${k(sum(rows[n]))} tok · ${rows[n].requests} req · hit ${hitRate(rows[n])}%`),
+        <Text bold>🤖 Usage by model</Text>
+        {modelNames.length === 0 && <Text dimColor>  No model requests yet.</Text>}
+        {modelNames.map((m, i) =>
+          row(' ', short(m), share(m), palette[i % palette.length],
+            `${k(sum(models[m]))} tok · ${models[m].requests} req · hit ${hitRate(models[m])}%`),
         )}
         {rule}
         {modelTotal > 0 && (
           <Box flexDirection="column">
             <Text>
               <Text bold>🧩 Models  </Text>
-              <Text dimColor>{modelNames.map(m => `${short(m)} ${((models[m] / modelTotal) * 100).toFixed(1)}%`).join(' | ')}</Text>
+              <Text dimColor>{modelNames.map(m => `${short(m)} ${share(m).toFixed(1)}%`).join(' | ')}</Text>
             </Text>
             <Text>
               <Text dimColor>  [</Text>
               {modelNames.map((m, i) => (
-                <Text color={palette[i % palette.length]}>{'█'.repeat(Math.round((models[m] / modelTotal) * W))}</Text>
+                <Text color={palette[i % palette.length]}>{'█'.repeat(Math.round((share(m) / 100) * W))}</Text>
               ))}
               <Text dimColor>]</Text>
             </Text>
@@ -237,13 +237,11 @@ export const register: Register = on => {
       name = types.get(e.agentId) ?? 'other'
     }
 
-    const all = u.input_tokens + u.output_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens
-    await update($, byModel, m => ({ ...m, [u.model]: (m[u.model] ?? 0) + all }))
-    const rows = await update($, byAgent, rows => {
-      const r = rows[name] ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, requests: 0 }
+    const add = (rows: Record<string, Usage>, key: string) => {
+      const r = rows[key] ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, requests: 0 }
       return {
         ...rows,
-        [name]: {
+        [key]: {
           input: r.input + u.input_tokens,
           output: r.output + u.output_tokens,
           cacheRead: r.cacheRead + u.cache_read_input_tokens,
@@ -251,7 +249,9 @@ export const register: Register = on => {
           requests: r.requests + 1,
         },
       }
-    })
+    }
+    await update($, byModel, m => add(m, u.model))
+    const rows = await update($, byAgent, r => add(r, name))
     const t = total(Object.values(rows))
     try {
       $.ui.status(`in ${k(t.input)} · out ${k(t.output)} · cache ${k(t.cacheRead)} (${hitRate(t)}%) · ${Object.keys(rows).length} agents`)

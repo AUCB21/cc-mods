@@ -2,6 +2,6 @@ export type Usage = { input: number; output: number; cacheRead: number; cacheWri
 
 declare module 'claude-code' {
   interface PluginState {
-    'agent-usage': { byAgent: Record<string, Usage>; byModel: Record<string, number> }
+    'agent-usage': { byAgent: Record<string, Usage>; byModelUsage: Record<string, Usage> }
   }
 }

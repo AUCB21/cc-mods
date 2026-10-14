@@ -118,13 +118,14 @@ export const register: Register = on => {
     const t = total(Object.values(rows))
     const mins = Math.max(1, (now - s.startedAt) / 60000)
 
-    const row = (icon: string, label: string, pct: number, color: string, note: string) => (
+    const row = (icon: string, label: string, pct: number, color: string, note: string, sub?: string) => (
       <Box flexDirection="column">
         <Text>
           <Text bold>{icon} {label}  </Text>
           <Text color={color} bold>{pct.toFixed(1)}%</Text>
           <Text dimColor>  {note}</Text>
         </Text>
+        {sub && <Text dimColor>{'  '}{sub}</Text>}
         <Text>
           <Text dimColor>  [</Text>
           <Text color={color}>{bar(pct, W)}</Text>
@@ -167,7 +168,8 @@ export const register: Register = on => {
         {modelNames.length === 0 && <Text dimColor>  No model requests yet.</Text>}
         {modelNames.map((m, i) =>
           row(' ', short(m), share(m), palette[i % palette.length],
-            `${k(sum(models[m]))} tok · ${models[m].requests} req · hit ${hitRate(models[m])}%`),
+            `${k(sum(models[m]))} tok · ${models[m].requests} req · hit ${hitRate(models[m])}%`,
+            `in ${k(models[m].input)} · out ${k(models[m].output)} · cache read ${k(models[m].cacheRead)} · write ${k(models[m].cacheWrite)}`),
         )}
         {rule}
         {modelTotal > 0 && (

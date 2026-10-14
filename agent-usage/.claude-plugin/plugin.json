@@ -1,6 +1,6 @@
 {
   "name": "agent-usage",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Usage monitor pane: session tokens, cache hit %, usage per model, plan limits with reset times and run-out prediction (screenshot at homepage)",
   "types": "./types/index.d.ts",
   "author": {

@@ -84,6 +84,8 @@ test('monitor pane draws on terminal and desktop', async ($, on) => {
     expect(await pane.find({ text: 'Usage by model' })).toBeDefined()
     expect((await pane.findAll({ text: 'opus-5-5' })).length).toBeGreaterThanOrEqual(2) // its row + the mix label
     expect((await pane.findAll({ text: 'haiku-5-5' })).length).toBeGreaterThanOrEqual(2)
+    // each model row carries its own in/out split: 10 in, 5 out, 85 cache read per step
+    expect(await pane.find({ text: 'in 10 · out 5 · cache read 85 · write 0' })).toBeDefined()
   }
 })
 
